@@ -14,10 +14,12 @@ export default class Dep {
   static target: ?Watcher;
   id: number;
   subs: Array<Watcher>;
+  mark: string;
 
-  constructor () {
+  constructor(mark) {
     this.id = uid++
     this.subs = []
+    this.mark = mark
   }
 
   addSub (sub: Watcher) {
@@ -30,11 +32,13 @@ export default class Dep {
 
   depend () {
     if (Dep.target) {
+      console.log('[Dep] depend watcher', this.mark, 'dep', this.id, 'watcher', Dep.target.expression)
       Dep.target.addDep(this)
     }
   }
 
   notify () {
+    console.trace('[Dep] notify', this.mark)
     // stabilize the subscriber list first
     const subs = this.subs.slice()
     if (process.env.NODE_ENV !== 'production' && !config.async) {
@@ -58,9 +62,11 @@ const targetStack = []
 export function pushTarget (target: ?Watcher) {
   targetStack.push(target)
   Dep.target = target
+  console.log('[Dep] push target', Dep.target, 'stack', targetStack)
 }
 
 export function popTarget () {
   targetStack.pop()
   Dep.target = targetStack[targetStack.length - 1]
+  console.log('[Dep] pop target', Dep.target, 'stack', targetStack)
 }

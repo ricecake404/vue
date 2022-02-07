@@ -40,8 +40,9 @@ export class Observer {
   vmCount: number; // number of vms that have this object as root $data
 
   constructor (value: any) {
+    console.trace('[Observer] create observer')
     this.value = value
-    this.dep = new Dep()
+    this.dep = new Dep('Observer Dep '+ JSON.stringify(value))
     this.vmCount = 0
     def(value, '__ob__', this)
     if (Array.isArray(value)) {
@@ -139,7 +140,7 @@ export function defineReactive (
   customSetter?: ?Function,
   shallow?: boolean
 ) {
-  const dep = new Dep()
+  const dep = new Dep('Get/Set Dep')
 
   const property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) {
@@ -160,6 +161,7 @@ export function defineReactive (
     get: function reactiveGetter () {
       const value = getter ? getter.call(obj) : val
       if (Dep.target) {
+        console.log('[Dep] depend from getter of', key, 'in', obj)
         dep.depend()
         if (childOb) {
           childOb.dep.depend()
